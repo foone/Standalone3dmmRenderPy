@@ -11,10 +11,6 @@ from StringIO import StringIO
 from OpenGL.GL.ARB.texture_rectangle import GL_TEXTURE_RECTANGLE_ARB
 import itertools,hashlib,argparse
 
-SCALE=2
-#SCALE=1
-#SCALE=1.5
-SIZE=(int(544*SCALE),int(306*SCALE))
 
 
 options={
@@ -53,6 +49,7 @@ TOGGLES={
 	K_s:'skeleton',
 }
 
+REVESE_TOGGLES=dict((value,key) for (key,value) in TOGGLES.items())
 
 current_texture=[None,1,1,np.identity(3)]
 
@@ -399,7 +396,6 @@ def drawBackground(texture_id,depth=False):
 def drawDepthBuffer():
 	db=scene['depth']
 	prog = db['program']
-	#tex=scene['background']
 	tex=db['texture']
 
 
@@ -424,8 +420,10 @@ def drawInfo():
 		('Skeleton','skeleton'),
 	]
 	lines=[]
+
 	for pretty,key in descriptions:
-		lines.append('%s: %s' % (pretty, 'on' if options[key] else 'off'))
+		keyb=REVESE_TOGGLES[key]
+		lines.append('%s: %s (%s)' % (pretty, 'on ' if options[key] else 'off', pygame.key.name(keyb)))
 	lines.append('')
 
 
@@ -668,6 +666,10 @@ def buildMaterialsMap(node):
 			print >>mtl,'Kd %0.4f %0.4f %0.4f ' % rgb
 
 def clearFigurineDirectory():
+	try:
+		os.mkdir('figurine')
+	except OSError:
+		pass
 	for path in glob.glob('figurine/*'):
 		os.unlink(path)
 
@@ -707,11 +709,19 @@ def saveScreenshot(filename, comparison):
 	im = Image.frombuffer("RGBA", (w,h), data, "raw", "RGBA", 0, 0)
 	im.save(filename)
 
-
-def main(args):
+def resetPositionAndRotation():
 	global rotation,position
+
 	rotation=[0,0]
 	position=[0,0,0]
+
+def main(args):
+	global SIZE
+
+
+	SIZE=(int(544*args.scale),int(306*args.scale))
+
+
 	video_flags = OPENGL|DOUBLEBUF
 	
 	pygame.init()
@@ -719,6 +729,8 @@ def main(args):
 	pygame.display.set_mode(SIZE, video_flags)
 
 	loadScene(args)
+
+	resetPositionAndRotation()
 
 	resize(SIZE)
 	init()
@@ -741,6 +753,8 @@ def main(args):
 				saveScreenshot('screenshot.png',event.key == K_F3)
 			elif event.key == K_F4:
 				save3DFigurine()
+			elif event.key == K_r:
+				resetPositionAndRotation()
 		elif event.type == MOUSEMOTION:
 			if event.buttons[2]:
 				rotation[0]+=event.rel[1]
@@ -764,7 +778,7 @@ if __name__ == '__main__':
 
 	parser.add_argument('--name', help='name for exported model',default='figurine')
 
-	parser.add_argument('url', help='URL or filename of model to load (instead of default server)', nargs='?', default='http://127.0.0.1:8090/json')
+	parser.add_argument('--scale', help='Scale of 3D window, in multiples of 544x306', default=1.0, type=float)
 
 	args = parser.parse_args()
 	main(args)
