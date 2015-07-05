@@ -3,15 +3,16 @@ from OpenGL.GL import shaders
 from OpenGL.GLU import *
 import pygame
 from pygame.locals import *
-import json,urllib2,random,sys,os,glob
-import requests
+import sys,os,glob
 import numpy as np
 from PIL import Image
 from StringIO import StringIO
 from OpenGL.GL.ARB.texture_rectangle import GL_TEXTURE_RECTANGLE_ARB
 import itertools,hashlib,argparse
+from memory_access import ProcessMemory
+from memory_walker import SceneBuilder
 
-
+APPLICATION_NAME='Standalone RenderPy 0.1'
 
 options={
 	'normals':False,
@@ -108,9 +109,6 @@ class Font(object):
 			glTexCoord2f(tx + mx*8,256 - (ty + my*16))
 			glVertex2i(x+mx*8,y+my*16)
 		self.pos[0]=x+8
-
-from memory_access import ProcessMemory
-from memory_walker import SceneBuilder
 
 def compose_pil_palette(palette):
 	out=[]
@@ -425,7 +423,7 @@ def drawInfo():
 		keyb=REVESE_TOGGLES[key]
 		lines.append('%s: %s (%s)' % (pretty, 'on ' if options[key] else 'off', pygame.key.name(keyb)))
 	lines.append('')
-
+	lines.append("Other keys: F2/F3: Screenshot F4: Export to OBJ r: reset camera")
 
 	lines.append("Position: (%0.2f,%0.2f,%0.2f)" % tuple(position))
 	lines.append("Rotation: (%0.2f,%0.2f,0.0)" % tuple(rotation))
@@ -444,7 +442,7 @@ def drawInfo():
 def drawLogo():
 	font=scene['font']
 	font.clear()
-	font.write('NewRender')
+	font.write(APPLICATION_NAME)
 
 def drawSkeleton():
 	skeleton=scene['skeleton']
@@ -659,7 +657,7 @@ def buildMaterialsMap(node):
 			im=loadPixelMapToImage(m['color_map'])
 			im.save('figurine/'+path)
 			print >>mtl,'newmtl %s' % name
-			print >>mtl,'map_Kd %s ' % path
+			print >>mtl,'map_Kd %s' % path
 		elif m['colors']:
 			print >>mtl,'newmtl %s' % name
 			rgb=tuple(x/255.0 for x in m['colors'][-1])
@@ -725,7 +723,7 @@ def main(args):
 	video_flags = OPENGL|DOUBLEBUF
 	
 	pygame.init()
-	pygame.display.set_caption('Standalone RenderPy')
+	pygame.display.set_caption(APPLICATION_NAME)
 	pygame.display.set_mode(SIZE, video_flags)
 
 	loadScene(args)

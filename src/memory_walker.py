@@ -1,4 +1,4 @@
-import struct,glob,sys,json,os
+import struct,glob,sys,os
 
 from construct import *
 
