@@ -14,6 +14,7 @@ FALSE=0
 
 from construct import Container
 from brender_structures import Actor
+import struct
 
 class ProcessMemory(object):
 	def __init__(self):
@@ -37,6 +38,10 @@ class ProcessMemory(object):
 			err = WinError()
 			raise OSError("Failed to read %0X(%0d) bytes at %08X(%0d) in process %s: %s" % (size, size, offset, offset, self.pid, err))
 		return buf.raw
+
+	def unpack(self, offset, fmt):
+		size=struct.calcsize(fmt)
+		return struct.unpack(fmt, self.read(offset,size))
 
 	def getGreyscale(self, w, h, offset):
 		return self.getRawImage(w*2,h,offset)
