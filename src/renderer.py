@@ -44,7 +44,7 @@ TOGGLES={
 	K_t:'textures',
 	K_b:'background',
 	K_z:'depth',
-	K_BACKQUOTE:'info',
+	K_h:'info',
 	K_d:'debug',
 	K_w:'wireframe',
 	K_s:'skeleton',
@@ -230,12 +230,10 @@ class SkeletonBuilder(ModelWalker):
 
 		if parent:
 			self.lines.append((parent,loc))
-		print parent,loc
 
 
 	def exit(self, node):
 		self.stack.pop()
-		print 'POP'
 
 
 
@@ -422,8 +420,8 @@ def drawInfo():
 	for pretty,key in descriptions:
 		keyb=REVESE_TOGGLES[key]
 		lines.append('%s: %s (%s)' % (pretty, 'on ' if options[key] else 'off', pygame.key.name(keyb)))
-	lines.append('')
 	lines.append("Other keys: F2/F3: Screenshot F4: Export to OBJ r: reset camera")
+	lines.append('')
 
 	lines.append("Position: (%0.2f,%0.2f,%0.2f)" % tuple(position))
 	lines.append("Rotation: (%0.2f,%0.2f,0.0)" % tuple(rotation))
@@ -570,7 +568,6 @@ def renderModelForFigurine(model, material, node):
 	obj=scene['obj-file']
 
 	
-	#print >>obj,'g node%d' % node['address']
 
 	tex=False
 	
