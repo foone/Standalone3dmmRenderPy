@@ -126,7 +126,8 @@ def loadScene(args):
 	
 	memory = ProcessMemory()
 	sceneb = SceneBuilder(memory)
-	sceneb.buildSceneFromStack(0x18FD98)
+	sceneb.findRenderArguments()
+	sceneb.buildScene()
 	scene = sceneb.scene
 	scene['pil_palette'] = compose_pil_palette(scene['palette'])
 

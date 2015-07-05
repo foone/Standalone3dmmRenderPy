@@ -17,6 +17,31 @@ class SceneBuilder(object):
 		self.scene = self.memory.getStructAt(esp,RenderArguments)
 		self.buildScene()
 
+	def findRenderArguments(self):
+		mvie=self.getAndConfirmClass(0x4E3E74,   'MVIE')
+		bwld=self.getAndConfirmClass(mvie+0x158, 'BWLD')
+
+		self.scene = Container(
+			world =  bwld+0x028,
+			camera = bwld+0x084,
+			pixels = bwld+0x10C,
+			depth =  bwld+0x138,
+		)
+
+	def getAndConfirmClass(self, ptr, classid):
+		offset=self.memory.unpack(ptr, 'L')[0]
+		self.confirmClass(offset, classid)
+		return offset
+
+	def confirmClass(self, offset, classid):
+		mem=self.memory
+		vtable=mem.unpack(offset,'L')[0]
+		getIDFunc=mem.unpack(vtable+4,'L')[0]
+		idbytes=mem.read(getIDFunc+1,4)[::-1].replace('\0','_')
+		if idbytes != classid:
+			raise ValueError("Checked offset %d(%8X) for vtable for %s but got %s",(offset,offset,classid,idbytes))
+		
+
 	def buildScene(self):
 		mem,scene = self.memory, self.scene
 
@@ -91,5 +116,5 @@ class SceneBuilder(object):
 if __name__=='__main__':
 	memory = ProcessMemory()
 	sceneb = SceneBuilder(memory)
-	sceneb.buildSceneFromStack(0x18FD98)
-	print json.dumps(sceneb.scene)
+	sceneb.findRenderArguments()
+	sceneb.buildScene()
