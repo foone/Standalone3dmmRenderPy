@@ -510,8 +510,12 @@ def renderModel(model, material):
 	
 	color=(128,255,128)
 	if material != 0:
-		i=len(material['colors'])//2
-		color=material['colors'][i]
+		colors=material['colors']
+		if colors:
+			i=len(colors)//2
+			color=material['colors'][i]
+		else:
+			color=(255,255,255)
 		if options['textures'] and 'texture_id' in material and (not options['wireframe']):
 			current_texture[0]=material['texture_id']
 			glBindTexture(GL_TEXTURE_RECTANGLE_ARB,current_texture[0])
