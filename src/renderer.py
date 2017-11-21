@@ -535,7 +535,7 @@ def renderModel(model, material):
 		n,p=vert['_n'],vert['p']
 		m=vert['map']
 		mx,my,mz=(mapmatrix*np.matrix([[m['x']],[m['y']],[1]])).flat
-		verts.append((p['x'],p['y'],p['z'],n['x'],n['y'],n['z'],mx,my))
+		verts.append((p['x'],p['y'],p['z'],n['x'],n['y'],n['z'],mx+mapmatrix[2,0],my+mapmatrix[2,1]))
 
 			
 	boolGL(options['lighting'])(GL_LIGHTING)
